@@ -21,10 +21,12 @@ installed primary-session extension. Temporary XDG data, config, cache, and
 state directories are used. `GSETTINGS_BACKEND=keyfile` keeps nested settings
 out of the primary dconf database; the temporary state is removed on exit.
 
-Applications passed after `--` inherit the nested Wayland socket, an empty
-`DISPLAY`, `GDK_BACKEND=wayland`, and the private D-Bus session. They belong to
-the nested compositor and are terminated when the nested test ends. Multiple
-applications can be launched through `sh -c`, as shown above.
+The Devkit control surface uses the existing parent Wayland display, while
+applications passed after `--` inherit the nested Wayland socket, an empty
+`DISPLAY`, `GDK_BACKEND=wayland`, and the private D-Bus session. Test
+applications belong to the nested compositor and are terminated when the
+nested test ends. Multiple applications can be launched through `sh -c`, as
+shown above.
 
 Set `KEEP_NESTED_STATE=1` when preserving the nested Shell log and temporary
 state is useful for diagnosis. Stop the workflow with Ctrl+C in the terminal

@@ -4,6 +4,7 @@ set -Eeuo pipefail
 readonly UUID='better-borders@leosilver.dev'
 readonly REPO_ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 readonly PARENT_WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-}"
+readonly PARENT_DISPLAY="${DISPLAY:-}"
 readonly RUNTIME_DIR="${XDG_RUNTIME_DIR:-}"
 readonly PRIMARY_SHELL_PID="$(pgrep -xo gnome-shell || true)"
 readonly DEVKIT_BIN='/usr/libexec/mutter-devkit'
@@ -63,7 +64,8 @@ export XDG_CACHE_HOME="$cache_home"
 export XDG_STATE_HOME="$state_home"
 export GSETTINGS_BACKEND=keyfile
 export WAYLAND_DISPLAY="$PARENT_WAYLAND_DISPLAY"
-export DISPLAY=
+export DISPLAY="$PARENT_DISPLAY"
+export GDK_BACKEND=wayland
 
 gsettings set org.gnome.shell allow-extension-installation true
 gsettings set org.gnome.shell enabled-extensions "['$UUID']"

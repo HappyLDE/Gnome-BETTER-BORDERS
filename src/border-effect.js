@@ -9,7 +9,6 @@ uniform vec2 pixel_step;
 `;
 
 const CODE = `
-void main() {
     vec2 pixel = cogl_tex_coord0_in.xy / pixel_step;
     vec2 size = vec2(1.0 / pixel_step.x, 1.0 / pixel_step.y);
 
@@ -23,7 +22,6 @@ void main() {
     vec4 original = cogl_color_out;
     vec4 border_pixel = vec4(border_color.rgb, 1.0);
     cogl_color_out = mix(original, border_pixel, border * border_color.a);
-}
 `;
 
 export const BORDER_EFFECT_NAME = 'better-borders-border';
