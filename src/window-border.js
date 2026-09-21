@@ -91,6 +91,7 @@ export default class WindowBorder {
         if (!this._effect) {
             this._effect = new BorderEffect();
             this._renderActor.add_effect_with_name(BORDER_EFFECT_NAME, this._effect);
+            this._effect.enabled = true;
         }
 
         this._updateEffect();

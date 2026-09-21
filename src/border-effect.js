@@ -21,7 +21,7 @@ void main() {
     float border = 1.0 - interior;
 
     vec4 original = cogl_color_out;
-    vec4 border_pixel = vec4(border_color.rgb, original.a);
+    vec4 border_pixel = vec4(border_color.rgb, 1.0);
     cogl_color_out = mix(original, border_pixel, border * border_color.a);
 }
 `;
