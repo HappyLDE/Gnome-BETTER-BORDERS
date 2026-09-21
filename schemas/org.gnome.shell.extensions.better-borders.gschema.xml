@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.better-borders"
+          path="/org/gnome/shell/extensions/better-borders/">
+    <key name="border-enabled" type="b">
+      <default>true</default>
+      <summary>Enable window borders</summary>
+      <description>Whether configurable borders should be applied to windows.</description>
+    </key>
+
+    <key name="border-width" type="i">
+      <default>2</default>
+      <range min="0" max="16"/>
+      <summary>Window border width</summary>
+      <description>Width of the window border in logical pixels.</description>
+    </key>
+
+    <key name="dark-active-border-color" type="s">
+      <default>'#62a0eaff'</default>
+      <summary>Dark mode active border color</summary>
+      <description>Border color for the focused window in dark mode.</description>
+    </key>
+
+    <key name="dark-inactive-border-color" type="s">
+      <default>'#5e5c64ff'</default>
+      <summary>Dark mode inactive border color</summary>
+      <description>Border color for unfocused windows in dark mode.</description>
+    </key>
+
+    <key name="light-active-border-color" type="s">
+      <default>'#1c71d8ff'</default>
+      <summary>Light mode active border color</summary>
+      <description>Border color for the focused window in light mode.</description>
+    </key>
+
+    <key name="light-inactive-border-color" type="s">
+      <default>'#c0bfbcff'</default>
+      <summary>Light mode inactive border color</summary>
+      <description>Border color for unfocused windows in light mode.</description>
+    </key>
+
+    <key name="rounded-corners-enabled" type="b">
+      <default>true</default>
+      <summary>Enable rounded window corners</summary>
+      <description>Whether configurable rounded corners should be applied to windows.</description>
+    </key>
+
+    <key name="corner-radius" type="i">
+      <default>12</default>
+      <range min="0" max="64"/>
+      <summary>Window corner radius</summary>
+      <description>Radius of rounded window corners in logical pixels.</description>
+    </key>
+
+    <key name="round-maximized-windows" type="b">
+      <default>false</default>
+      <summary>Round maximized windows</summary>
+      <description>Whether maximized windows should keep rounded corners.</description>
+    </key>
+
+    <key name="shadows-enabled" type="b">
+      <default>true</default>
+      <summary>Enable window shadows</summary>
+      <description>Whether configurable window shadows should be applied.</description>
+    </key>
+
+    <key name="active-shadow-strength" type="d">
+      <default>0.75</default>
+      <range min="0.0" max="1.0"/>
+      <summary>Active window shadow strength</summary>
+      <description>Opacity multiplier for the focused window shadow.</description>
+    </key>
+
+    <key name="inactive-shadow-strength" type="d">
+      <default>0.35</default>
+      <range min="0.0" max="1.0"/>
+      <summary>Inactive window shadow strength</summary>
+      <description>Opacity multiplier for unfocused window shadows.</description>
+    </key>
+  </schema>
+</schemalist>

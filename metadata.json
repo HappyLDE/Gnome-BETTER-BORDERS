@@ -1,0 +1,10 @@
+{
+  "name": "GNOME Better Borders",
+  "description": "A foundation for configurable GNOME window borders, corners, and shadows.",
+  "uuid": "better-borders@leosilver.dev",
+  "shell-version": [
+    "49",
+    "50"
+  ],
+  "settings-schema": "org.gnome.shell.extensions.better-borders"
+}
