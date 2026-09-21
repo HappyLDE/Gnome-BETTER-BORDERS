@@ -41,6 +41,8 @@ export default class WindowBorder {
         this._connect(this._actor, 'notify::first-child', () => this._refreshEffect());
         this._connect(this._actor, 'notify::size', () => this._updateEffect());
         this._connect(this._metaWindow, 'notify::fullscreen', () => this._refreshEffect());
+        this._connect(this._metaWindow, 'notify::maximized-horizontally', () => this._refreshEffect());
+        this._connect(this._metaWindow, 'notify::maximized-vertically', () => this._refreshEffect());
         this._connect(this._metaWindow, 'notify::appears-focused', () => this._updateEffect());
     }
 
@@ -70,7 +72,9 @@ export default class WindowBorder {
             return;
 
         const config = this._config ?? this._getConfig();
-        const shouldRender = config.enabled && config.width > 0 && this._isSupportedWindow();
+        const borderEnabled = config.enabled && config.width > 0;
+        const roundedEnabled = this._shouldRound(config);
+        const shouldRender = this._isSupportedWindow() && (borderEnabled || roundedEnabled);
         if (!shouldRender) {
             this._removeEffect();
             return;
@@ -104,11 +108,14 @@ export default class WindowBorder {
         const color = this._isFocused()
             ? (this._darkMode ? this._config.darkActive : this._config.lightActive)
             : (this._darkMode ? this._config.darkInactive : this._config.lightInactive);
+        const rounded = this._shouldRound(this._config);
         this._effect.update(
             this._renderActor.get_width(),
             this._renderActor.get_height(),
-            this._config.width,
-            parseColor(color));
+            this._config.enabled ? this._config.width : 0,
+            parseColor(color),
+            rounded,
+            this._config.cornerRadius);
     }
 
     _getRenderActor() {
@@ -120,6 +127,15 @@ export default class WindowBorder {
 
     _isSupportedWindow() {
         return this._metaWindow.window_type === Meta.WindowType.NORMAL && !this._metaWindow.fullscreen;
+    }
+
+    _shouldRound(config) {
+        if (!config.roundedCornersEnabled)
+            return false;
+
+        const maximized = this._metaWindow.maximized_horizontally ||
+            this._metaWindow.maximized_vertically;
+        return config.roundMaximizedWindows || !maximized;
     }
 
     _isFocused() {

@@ -56,6 +56,9 @@ export default class EffectManager {
         return {
             enabled: this._settings.get_boolean('border-enabled'),
             width: this._settings.get_int('border-width'),
+            roundedCornersEnabled: this._settings.get_boolean('rounded-corners-enabled'),
+            cornerRadius: this._settings.get_int('corner-radius'),
+            roundMaximizedWindows: this._settings.get_boolean('round-maximized-windows'),
             darkActive: this._settings.get_string('dark-active-border-color'),
             darkInactive: this._settings.get_string('dark-inactive-border-color'),
             lightActive: this._settings.get_string('light-active-border-color'),
