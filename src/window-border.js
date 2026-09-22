@@ -110,14 +110,50 @@ export default class WindowBorder {
             : (this._darkMode ? this._config.darkInactive : this._config.lightInactive);
         const rounded = this._shouldRound(this._config);
         const geometry = this._getFrameGeometry();
+        const requestedWidth = this._config.enabled
+            ? Math.max(0, this._config.width * geometry.scale)
+            : 0;
+        const halfWidth = requestedWidth * 0.5;
+        const [frameX, frameY, frameWidth, frameHeight] = geometry.frameRect;
+        // Center the stroke on the frame edge when the transparent buffer
+        // margin can hold its outer half. If it cannot, move only the
+        // unavailable portion inward instead of drawing outside the actor.
+        const availableOutsideX = Math.max(0, Math.min(
+            frameX,
+            geometry.renderWidth - frameX - frameWidth));
+        const availableOutsideY = Math.max(0, Math.min(
+            frameY,
+            geometry.renderHeight - frameY - frameHeight));
+        const outsideX = Math.min(halfWidth, availableOutsideX);
+        const outsideY = Math.min(halfWidth, availableOutsideY);
+        const insideX = Math.max(0, requestedWidth - outsideX);
+        const insideY = Math.max(0, requestedWidth - outsideY);
+        const outerRect = [
+            frameX - outsideX,
+            frameY - outsideY,
+            frameWidth + outsideX * 2,
+            frameHeight + outsideY * 2,
+        ];
+        const innerRect = [
+            frameX + insideX,
+            frameY + insideY,
+            Math.max(0, frameWidth - insideX * 2),
+            Math.max(0, frameHeight - insideY * 2),
+        ];
+        const frameRadius = this._config.cornerRadius * geometry.scale;
+        const outerRadius = frameRadius + Math.min(outsideX, outsideY);
+        const innerRadius = Math.max(0, frameRadius - Math.max(insideX, insideY));
         this._effect.update(
             this._renderActor.get_width(),
             this._renderActor.get_height(),
             geometry.frameRect,
-            this._config.enabled ? this._config.width * geometry.scale : 0,
+            outerRect,
+            innerRect,
+            frameRadius,
+            outerRadius,
+            innerRadius,
             parseColor(color),
-            rounded,
-            this._config.cornerRadius * geometry.scale);
+            rounded);
     }
 
     _getRenderActor() {
@@ -134,7 +170,12 @@ export default class WindowBorder {
         const buffer = this._metaWindow.get_buffer_rect();
 
         if (frame.width <= 0 || frame.height <= 0 || buffer.width <= 0 || buffer.height <= 0)
-            return {frameRect: [0, 0, renderWidth, renderHeight], scale: 1};
+            return {
+                frameRect: [0, 0, renderWidth, renderHeight],
+                renderWidth,
+                renderHeight,
+                scale: 1,
+            };
 
         const scaleX = renderWidth / buffer.width;
         const scaleY = renderHeight / buffer.height;
@@ -148,6 +189,8 @@ export default class WindowBorder {
                 frame.width * scaleX,
                 frame.height * scaleY,
             ],
+            renderWidth,
+            renderHeight,
             scale: (scaleX + scaleY) * 0.5,
         };
     }
