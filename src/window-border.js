@@ -109,13 +109,15 @@ export default class WindowBorder {
             ? (this._darkMode ? this._config.darkActive : this._config.lightActive)
             : (this._darkMode ? this._config.darkInactive : this._config.lightInactive);
         const rounded = this._shouldRound(this._config);
+        const geometry = this._getFrameGeometry();
         this._effect.update(
             this._renderActor.get_width(),
             this._renderActor.get_height(),
-            this._config.enabled ? this._config.width : 0,
+            geometry.frameRect,
+            this._config.enabled ? this._config.width * geometry.scale : 0,
             parseColor(color),
             rounded,
-            this._config.cornerRadius);
+            this._config.cornerRadius * geometry.scale);
     }
 
     _getRenderActor() {
@@ -123,6 +125,31 @@ export default class WindowBorder {
             return this._actor.get_first_child();
 
         return this._actor;
+    }
+
+    _getFrameGeometry() {
+        const renderWidth = this._renderActor.get_width();
+        const renderHeight = this._renderActor.get_height();
+        const frame = this._metaWindow.get_frame_rect();
+        const buffer = this._metaWindow.get_buffer_rect();
+
+        if (frame.width <= 0 || frame.height <= 0 || buffer.width <= 0 || buffer.height <= 0)
+            return {frameRect: [0, 0, renderWidth, renderHeight], scale: 1};
+
+        const scaleX = renderWidth / buffer.width;
+        const scaleY = renderHeight / buffer.height;
+        const renderX = this._renderActor === this._actor ? 0 : this._renderActor.get_x();
+        const renderY = this._renderActor === this._actor ? 0 : this._renderActor.get_y();
+
+        return {
+            frameRect: [
+                (frame.x - buffer.x) * scaleX - renderX,
+                (frame.y - buffer.y) * scaleY - renderY,
+                frame.width * scaleX,
+                frame.height * scaleY,
+            ],
+            scale: (scaleX + scaleY) * 0.5,
+        };
     }
 
     _isSupportedWindow() {

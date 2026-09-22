@@ -6,15 +6,17 @@ const DECLARATIONS = `
 uniform float border_width;
 uniform vec4 border_color;
 uniform vec2 pixel_step;
+uniform vec4 frame_rect;
 uniform float rounded_enabled;
 uniform float corner_radius;
 `;
 
 const CODE = `
     vec2 pixel = cogl_tex_coord0_in.xy / pixel_step;
-    vec2 size = vec2(1.0 / pixel_step.x, 1.0 / pixel_step.y);
+    vec2 frame_origin = frame_rect.xy;
+    vec2 size = frame_rect.zw;
 
-    vec2 point = pixel - (size * 0.5);
+    vec2 point = pixel - frame_origin - (size * 0.5);
     vec2 outer_half_size = size * 0.5;
     float radius = min(corner_radius, min(outer_half_size.x, outer_half_size.y));
 
@@ -38,12 +40,17 @@ const CODE = `
         float inner_alpha = 1.0 - smoothstep(0.0, inner_aa, inner_distance);
         border = clamp(outer_alpha - inner_alpha, 0.0, 1.0);
     } else {
-        float inside_left = step(border_width, pixel.x);
-        float inside_right = step(border_width, size.x - pixel.x);
-        float inside_top = step(border_width, pixel.y);
-        float inside_bottom = step(border_width, size.y - pixel.y);
+        vec2 frame_pixel = pixel - frame_origin;
+        float inside_frame = step(0.0, frame_pixel.x) *
+            step(0.0, frame_pixel.y) *
+            step(0.0, size.x - frame_pixel.x) *
+            step(0.0, size.y - frame_pixel.y);
+        float inside_left = step(border_width, frame_pixel.x);
+        float inside_right = step(border_width, size.x - frame_pixel.x);
+        float inside_top = step(border_width, frame_pixel.y);
+        float inside_bottom = step(border_width, size.y - frame_pixel.y);
         float interior = inside_left * inside_right * inside_top * inside_bottom;
-        border = 1.0 - interior;
+        border = inside_frame * (1.0 - interior);
     }
 
     if (rounded_enabled > 0.5 && outer_distance > outer_aa)
@@ -64,6 +71,7 @@ export const BorderEffect = GObject.registerClass({}, class BorderEffect extends
         this._borderWidthLocation = this.get_uniform_location('border_width');
         this._borderColorLocation = this.get_uniform_location('border_color');
         this._pixelStepLocation = this.get_uniform_location('pixel_step');
+        this._frameRectLocation = this.get_uniform_location('frame_rect');
         this._roundedEnabledLocation = this.get_uniform_location('rounded_enabled');
         this._cornerRadiusLocation = this.get_uniform_location('corner_radius');
     }
@@ -72,13 +80,14 @@ export const BorderEffect = GObject.registerClass({}, class BorderEffect extends
         this.add_glsl_snippet(Cogl.SnippetHook.FRAGMENT, DECLARATIONS, CODE, false);
     }
 
-    update(width, height, borderWidth, color, rounded, cornerRadius) {
+    update(width, height, frameRect, borderWidth, color, rounded, cornerRadius) {
         if (width <= 0 || height <= 0)
             return;
 
         this.set_uniform_float(this._borderWidthLocation, 1, [borderWidth]);
         this.set_uniform_float(this._borderColorLocation, 4, color);
         this.set_uniform_float(this._pixelStepLocation, 2, [1 / width, 1 / height]);
+        this.set_uniform_float(this._frameRectLocation, 4, frameRect);
         this.set_uniform_float(this._roundedEnabledLocation, 1, [rounded ? 1 : 0]);
         this.set_uniform_float(this._cornerRadiusLocation, 1, [Math.max(0, cornerRadius)]);
         this.queue_repaint();
